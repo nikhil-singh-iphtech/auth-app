@@ -1,18 +1,22 @@
-import "dotenv/config"
-import app from "./app.js"
+import dotenv from 'dotenv';
+dotenv.config();
 
-import connectDb from "./config/db.js"
+import app from './app.js';
+import connectDB from './config/db.js';
 
+const PORT = process.env.PORT || 5000;
 
+const start = async () => {
+  await connectDB();
+  app.listen(PORT, () => {
+    console.log(`
+    ┌─────────────────────────────────┐
+    │   Auth server running           │
+    │   Port     : ${PORT}               │
+    │   Env      : ${process.env.NODE_ENV}         │
+    └─────────────────────────────────┘
+    `);
+  });
+};
 
-
-const PORT=process.env.PORT || 5000;
-
-const start=async ()=>{
-    await connectDb()
-    app.listen(PORT, ()=>{
-        console.log(`SERVER IS RUNNING ON PORT ${PORT}`)
-    })
-}
-
-start()
+start();
