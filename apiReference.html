@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auth API Reference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #111118;
+    --border:   #1e1e2e;
+    --border2:  #2a2a3e;
+    --text:     #e2e2f0;
+    --muted:    #6b6b8a;
+    --purple:   #7c5cfc;
+    --purple2:  #9d7fff;
+    --teal:     #00d4aa;
+    --amber:    #ffb347;
+    --red:      #ff5f7e;
+    --blue:     #4db8ff;
+    --green:    #5af78e;
+    --mono:     'JetBrains Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 48px 24px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    max-width: 960px;
+    margin: 0 auto 48px;
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 32px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--purple2); }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    font-family: var(--mono);
+    letter-spacing: 0.02em;
+  }
+
+  /* ── BASE URL BAR ── */
+  .base-url {
+    max-width: 960px;
+    margin: 0 auto 40px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .base-url-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+
+  .base-url-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--teal);
+  }
+
+  /* ── SECTION ── */
+  .section {
+    max-width: 960px;
+    margin: 0 auto 40px;
+  }
+
+  .section-title {
+    font-size: 11px;
+    font-family: var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── ROUTE CARD ── */
+  .route-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .route-card:hover { border-color: var(--border2); }
+
+  .route-header {
+    display: grid;
+    grid-template-columns: 60px 240px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  @media (max-width: 640px) {
+    .route-header { grid-template-columns: 50px 1fr auto; }
+    .route-path-col { grid-column: 1 / -1; }
+  }
+
+  .method {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 5px;
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+
+  .method-post { background: #1a2e1a; color: var(--green);  border: 1px solid #2a4a2a; }
+  .method-get  { background: #1a1e2e; color: var(--blue);   border: 1px solid #2a2e4a; }
+
+  .route-path {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  .route-desc {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .route-tags {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 0.04em;
+  }
+
+  .tag-rate   { color: var(--amber); border-color: #3a2e10; background: #1e1800; }
+  .tag-otp    { color: var(--amber); border-color: #3a2e10; background: #1e1800; }
+  .tag-auth   { color: var(--purple2); border-color: #2a1e4a; background: #150e2e; }
+  .tag-public { color: var(--muted); border-color: var(--border); background: transparent; }
+  .tag-protected { color: var(--teal); border-color: #0e3028; background: #061812; }
+
+  /* ── EXPANDED PANEL ── */
+  .route-body {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .route-body.open { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  @media (max-width: 640px) {
+    .route-body.open { grid-template-columns: 1fr; }
+  }
+
+  .panel-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    line-height: 1.7;
+    white-space: pre;
+  }
+
+  .key   { color: var(--blue); }
+  .str   { color: var(--green); }
+  .num   { color: var(--amber); }
+  .bool  { color: var(--purple2); }
+  .cmt   { color: var(--muted); font-style: italic; }
+  .err   { color: var(--red); }
+
+  .chevron {
+    color: var(--muted);
+    font-size: 14px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .chevron.open { transform: rotate(180deg); }
+
+  /* ── SECURITY TABLE ── */
+  .security-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .security-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .security-card h4 {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .security-card p {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--mono);
+    line-height: 1.6;
+  }
+
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; flex-shrink: 0; }
+  .dot-purple { background: var(--purple); }
+  .dot-teal   { background: var(--teal); }
+  .dot-amber  { background: var(--amber); }
+  .dot-red    { background: var(--red); }
+  .dot-blue   { background: var(--blue); }
+
+  /* ── TOKEN TABLE ── */
+  .token-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .token-table th {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border2);
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    background: var(--bg);
+  }
+
+  .token-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .token-table tr:last-child td { border-bottom: none; }
+  .token-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .token-table td:first-child { color: var(--purple2); }
+  .token-table td:nth-child(2) { color: var(--amber); }
+  .token-table td:nth-child(3) { color: var(--text); }
+  .token-table td:nth-child(4) { color: var(--muted); }
+
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* ── FLOW SUMMARY ── */
+  .flow-steps {
+    display: flex;
+    gap: 0;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    gap: 8px;
+  }
+
+  .flow-step {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .flow-arrow {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* ── ERROR CODES ── */
+  .error-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .error-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .error-code {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--red);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .error-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .error-action {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--teal);
+    margin-top: 6px;
+  }
+
+  footer {
+    max-width: 960px;
+    margin: 48px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    gap: 12px;
+  }
+
+  footer p { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>Auth API <span>Reference</span></h1>
+      <p class="subtitle">// Node.js · Express · MongoDB · JWT · Passport · Nodemailer</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+      <span class="badge">v1.0.0</span>
+      <span class="badge">ESM · type:module</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── BASE URL ── -->
+<div class="base-url">
+  <span class="base-url-label">Base URL</span>
+  <span class="base-url-value">http://localhost:5000/api/auth</span>
+</div>
+
+<!-- ── ROUTES: ACCOUNT ── -->
+<div class="section">
+  <div class="section-title">Account</div>
+
+  <!-- signup -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/signup</span>
+      <span class="route-desc">Register with email + password</span>
+      <div class="route-tags">
+        <span class="tag tag-rate">authLimiter</span>
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre><span class="cmt">// Content-Type: application/json</span>
+{
+  <span class="key">"name"</span>:     <span class="str">"Pulkit Gaur"</span>,
+  <span class="key">"email"</span>:    <span class="str">"pulkit@example.com"</span>,
+  <span class="key">"password"</span>: <span class="str">"secret123"</span>
+}</pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 201</div>
+        <pre>{
+  <span class="key">"success"</span>:      <span class="bool">true</span>,
+  <span class="key">"accessToken"</span>:  <span class="str">"eyJ..."</span>,  <span class="cmt">// 15 min</span>
+  <span class="key">"refreshToken"</span>: <span class="str">"eyJ..."</span>,  <span class="cmt">// 7 days</span>
+  <span class="key">"user"</span>: {
+    <span class="key">"id"</span>:    <span class="str">"6a1ff7dc..."</span>,
+    <span class="key">"name"</span>:  <span class="str">"Pulkit Gaur"</span>,
+    <span class="key">"email"</span>: <span class="str">"pulkit@example.com"</span>
+  }
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Side effects</div>
+        <pre><span class="cmt">// authProviders: ["local"]
+// password: bcrypt hashed
+// refreshToken: stored in DB</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- check-email -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/check-email</span>
+      <span class="route-desc">Get available login methods for an email</span>
+      <div class="route-tags">
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre>{
+  <span class="key">"email"</span>: <span class="str">"pulkit@example.com"</span>
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Use case</div>
+        <pre><span class="cmt">// Call before showing any login UI.
+// Frontend renders ONLY available methods.
+// Never call this after failed /login —
+// availableMethods is returned there too.</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200 (found)</div>
+        <pre>{
+  <span class="key">"exists"</span>: <span class="bool">true</span>,
+  <span class="key">"availableMethods"</span>: [
+    <span class="str">"password"</span>,  <span class="cmt">// if password !== null</span>
+    <span class="str">"google"</span>,    <span class="cmt">// if authProviders has google</span>
+    <span class="str">"otp"</span>        <span class="cmt">// always present</span>
+  ]
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Response · 200 (not found)</div>
+        <pre>{
+  <span class="key">"exists"</span>: <span class="bool">false</span>,
+  <span class="key">"availableMethods"</span>: [],
+  <span class="key">"message"</span>: <span class="str">"No account found. Please sign up."</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ROUTES: PASSWORD AUTH ── -->
+<div class="section">
+  <div class="section-title">Password Auth</div>
+
+  <!-- login -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/login</span>
+      <span class="route-desc">Login with email + password</span>
+      <div class="route-tags">
+        <span class="tag tag-rate">authLimiter</span>
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre>{
+  <span class="key">"email"</span>:    <span class="str">"pulkit@example.com"</span>,
+  <span class="key">"password"</span>: <span class="str">"secret123"</span>
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Error responses</div>
+        <pre><span class="cmt">// No account:</span>
+{ <span class="key">"code"</span>: <span class="err">"INVALID_CREDENTIALS"</span> }
+
+<span class="cmt">// No password set (OTP/Google user):</span>
+{
+  <span class="key">"code"</span>: <span class="err">"INVALID_CREDENTIALS"</span>,
+  <span class="key">"availableMethods"</span>: [<span class="str">"otp"</span>]
+}
+
+<span class="cmt">// Wrong password:</span>
+{
+  <span class="key">"code"</span>: <span class="err">"INVALID_CREDENTIALS"</span>,
+  <span class="key">"availableMethods"</span>: [<span class="str">"password"</span>, <span class="str">"otp"</span>]
+}</pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200</div>
+        <pre>{
+  <span class="key">"success"</span>:      <span class="bool">true</span>,
+  <span class="key">"accessToken"</span>:  <span class="str">"eyJ..."</span>,
+  <span class="key">"refreshToken"</span>: <span class="str">"eyJ..."</span>,
+  <span class="key">"user"</span>: {
+    <span class="key">"id"</span>:    <span class="str">"..."</span>,
+    <span class="key">"name"</span>:  <span class="str">"Pulkit Gaur"</span>,
+    <span class="key">"email"</span>: <span class="str">"pulkit@example.com"</span>
+  }
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Security note</div>
+        <pre><span class="cmt">// All failures return same vague message.
+// Never reveals if email exists or
+// which provider they signed up with.
+// Frontend reads code field, not message.</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ROUTES: OTP AUTH ── -->
+<div class="section">
+  <div class="section-title">OTP Auth</div>
+
+  <!-- send-otp -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/send-otp</span>
+      <span class="route-desc">Send 6-digit OTP to email</span>
+      <div class="route-tags">
+        <span class="tag tag-otp">otpLimiter</span>
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre>{
+  <span class="key">"email"</span>: <span class="str">"pulkit@example.com"</span>
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Behaviour</div>
+        <pre><span class="cmt">// If user doesn't exist → creates account
+// authProviders: ["local"], password: null
+// OTP: 6 digits, expires in 10 minutes
+// Overwrites any previous OTP on re-send</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200</div>
+        <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"message"</span>: <span class="str">"OTP sent to your email"</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- verify-otp -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/verify-otp</span>
+      <span class="route-desc">Verify OTP and issue JWT tokens</span>
+      <div class="route-tags">
+        <span class="tag tag-otp">otpLimiter</span>
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre>{
+  <span class="key">"email"</span>: <span class="str">"pulkit@example.com"</span>,
+  <span class="key">"otp"</span>:   <span class="str">"482910"</span>
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Behaviour</div>
+        <pre><span class="cmt">// Verifies code + checks expiry
+// Clears OTP after use (single-use)
+// Issues access + refresh tokens</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200</div>
+        <pre>{
+  <span class="key">"success"</span>:      <span class="bool">true</span>,
+  <span class="key">"accessToken"</span>:  <span class="str">"eyJ..."</span>,
+  <span class="key">"refreshToken"</span>: <span class="str">"eyJ..."</span>,
+  <span class="key">"user"</span>: { <span class="key">"id"</span>: <span class="str">"..."</span>, <span class="key">"email"</span>: <span class="str">"..."</span> }
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ROUTES: OAUTH ── -->
+<div class="section">
+  <div class="section-title">Google OAuth 2.0</div>
+
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-get">GET</span>
+      <span class="route-path">/google</span>
+      <span class="route-desc">Redirect to Google consent screen</span>
+      <div class="route-tags">
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Usage</div>
+        <pre><span class="cmt">// Open in browser — not curl
+// Redirects to accounts.google.com
+// scope: profile, email</span>
+window.location.href =
+  <span class="str">'/api/auth/google'</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Flow</div>
+        <pre><span class="cmt">// 1. User approves on Google
+// 2. Google redirects to /google/callback
+// 3. Passport exchanges code for profile
+// 4. findOrCreate user in DB
+// 5. addProvider('google')
+// 6. Redirect to CLIENT_URL/auth/success
+//    ?accessToken=xxx&refreshToken=yyy</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-get">GET</span>
+      <span class="route-path">/google/callback</span>
+      <span class="route-desc">Google OAuth callback — handled by Passport</span>
+      <div class="route-tags">
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Note</div>
+        <pre><span class="cmt">// Do not call this directly.
+// Google redirects here automatically.
+// On success → googleCallback controller
+// On failure → /google/failure</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Success redirect</div>
+        <pre><span class="cmt">// Redirects to:</span>
+<span class="str">`${CLIENT_URL}/auth/success
+  ?accessToken=eyJ...
+  &refreshToken=eyJ...`</span>
+
+<span class="cmt">// Production: use httpOnly cookies instead</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ROUTES: TOKEN MANAGEMENT ── -->
+<div class="section">
+  <div class="section-title">Token Management</div>
+
+  <!-- refresh -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/refresh</span>
+      <span class="route-desc">Exchange refresh token for new token pair</span>
+      <div class="route-tags">
+        <span class="tag tag-rate">authLimiter</span>
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre>{
+  <span class="key">"refreshToken"</span>: <span class="str">"eyJ..."</span>
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Rotation behaviour</div>
+        <pre><span class="cmt">// Old refresh token is invalidated
+// New access + refresh pair issued
+// DB match check prevents reuse after
+// rotation — detects stolen tokens</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200</div>
+        <pre>{
+  <span class="key">"success"</span>:      <span class="bool">true</span>,
+  <span class="key">"accessToken"</span>:  <span class="str">"eyJ..."</span>,  <span class="cmt">// new</span>
+  <span class="key">"refreshToken"</span>: <span class="str">"eyJ..."</span>,  <span class="cmt">// new</span>
+  <span class="key">"user"</span>: { ... }
+}</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- logout -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/logout</span>
+      <span class="route-desc">Invalidate refresh token</span>
+      <div class="route-tags">
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre>{
+  <span class="key">"refreshToken"</span>: <span class="str">"eyJ..."</span>
+}</pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200</div>
+        <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"message"</span>: <span class="str">"Logged out successfully"</span>
+}
+<span class="cmt">// refreshToken set to null in DB
+// Access token expires naturally (15m)
+// Client should clear both tokens</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- me -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-get">GET</span>
+      <span class="route-path">/me</span>
+      <span class="route-desc">Get current authenticated user</span>
+      <div class="route-tags">
+        <span class="tag tag-protected">protected</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request header</div>
+        <pre>Authorization: Bearer <span class="str">eyJ...</span></pre>
+        <div class="panel-label" style="margin-top:12px;">protect middleware</div>
+        <pre><span class="cmt">// 1. Reads Authorization header
+// 2. jwt.verify(token, JWT_SECRET)
+// 3. User.findById(decoded.id)
+// 4. Attaches to req.user
+// 5. Strips password, otp fields</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200</div>
+        <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"user"</span>: {
+    <span class="key">"_id"</span>:          <span class="str">"..."</span>,
+    <span class="key">"name"</span>:         <span class="str">"Pulkit Gaur"</span>,
+    <span class="key">"email"</span>:        <span class="str">"..."</span>,
+    <span class="key">"authProviders"</span>: [<span class="str">"local"</span>],
+    <span class="key">"createdAt"</span>:    <span class="str">"..."</span>
+  }
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ROUTES: PASSWORD RESET ── -->
+<div class="section">
+  <div class="section-title">Password Reset</div>
+
+  <!-- forgot -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/forgot-password</span>
+      <span class="route-desc">Send password reset link to email</span>
+      <div class="route-tags">
+        <span class="tag tag-rate">authLimiter</span>
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre>{
+  <span class="key">"email"</span>: <span class="str">"pulkit@example.com"</span>
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Token generation</div>
+        <pre><span class="cmt">// crypto.randomBytes(32) → rawToken
+// sha256(rawToken) → stored in DB
+// rawToken → email link only
+// Expires in 15 minutes</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200 (always)</div>
+        <pre>{
+  <span class="key">"success"</span>: <span class="bool">true</span>,
+  <span class="key">"message"</span>: <span class="str">"If an account with that
+    email exists, a password reset
+    link has been sent."</span>
+}
+<span class="cmt">// Identical whether email exists or not
+// Never confirms email registration</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- reset -->
+  <div class="route-card">
+    <div class="route-header" onclick="toggle(this)">
+      <span class="method method-post">POST</span>
+      <span class="route-path">/reset-password</span>
+      <span class="route-desc">Set new password using reset token</span>
+      <div class="route-tags">
+        <span class="tag tag-rate">authLimiter</span>
+        <span class="tag tag-public">public</span>
+        <span class="chevron">▾</span>
+      </div>
+    </div>
+    <div class="route-body">
+      <div>
+        <div class="panel-label">Request body</div>
+        <pre>{
+  <span class="key">"email"</span>:       <span class="str">"pulkit@example.com"</span>,
+  <span class="key">"token"</span>:       <span class="str">"cd995efd..."</span>,  <span class="cmt">// raw</span>
+  <span class="key">"newPassword"</span>: <span class="str">"newSecret123"</span>
+}</pre>
+        <div class="panel-label" style="margin-top:12px;">Side effects</div>
+        <pre><span class="cmt">// sha256(token) === DB hash ✓
+// user.password = bcrypt(newPassword)
+// user.addProvider('local') pushed
+// passwordResetToken = null (single-use)
+// Issues tokens → logs in immediately</span></pre>
+      </div>
+      <div>
+        <div class="panel-label">Response · 200</div>
+        <pre>{
+  <span class="key">"success"</span>:      <span class="bool">true</span>,
+  <span class="key">"accessToken"</span>:  <span class="str">"eyJ..."</span>,
+  <span class="key">"refreshToken"</span>: <span class="str">"eyJ..."</span>,
+  <span class="key">"user"</span>: { ... }
+}
+<span class="cmt">// After this, /check-email returns
+// 'password' in availableMethods</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOKEN REFERENCE ── -->
+<div class="section">
+  <div class="section-title">Token Reference</div>
+  <div class="table-wrap">
+    <table class="token-table">
+      <thead>
+        <tr>
+          <th>Token</th>
+          <th>Expiry</th>
+          <th>Storage</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>accessToken</td>
+          <td>15 min</td>
+          <td>Memory / Authorization header</td>
+          <td>Authenticate every API request via protect middleware</td>
+        </tr>
+        <tr>
+          <td>refreshToken</td>
+          <td>7 days</td>
+          <td>DB + client storage</td>
+          <td>Exchange for new token pair at /refresh. Rotated on each use.</td>
+        </tr>
+        <tr>
+          <td>OTP code</td>
+          <td>10 min</td>
+          <td>DB (plaintext)</td>
+          <td>Passwordless login. Single-use. Cleared after verify-otp.</td>
+        </tr>
+        <tr>
+          <td>passwordResetToken</td>
+          <td>15 min</td>
+          <td>DB (sha256 hash only)</td>
+          <td>Password reset. Raw token in email only. Single-use.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── RATE LIMITS ── -->
+<div class="section">
+  <div class="section-title">Rate Limits</div>
+  <div class="security-grid">
+    <div class="security-card">
+      <h4><span class="dot dot-teal"></span>globalLimiter</h4>
+      <p>100 requests / 15 min per IP<br>Applied to all routes</p>
+    </div>
+    <div class="security-card">
+      <h4><span class="dot dot-purple"></span>authLimiter</h4>
+      <p>10 requests / 15 min per IP<br>/login /signup /refresh /forgot /reset</p>
+    </div>
+    <div class="security-card">
+      <h4><span class="dot dot-amber"></span>otpLimiter</h4>
+      <p>3 requests / 10 min per IP<br>/send-otp /verify-otp</p>
+    </div>
+    <div class="security-card">
+      <h4><span class="dot dot-red"></span>No limit</h4>
+      <p>/logout /check-email /health<br>/google /google/callback</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── ERROR CODES ── -->
+<div class="section">
+  <div class="section-title">Error Codes</div>
+  <div class="error-grid">
+    <div class="error-card">
+      <div class="error-code">INVALID_CREDENTIALS</div>
+      <div class="error-desc">Login failed — email not found, no password set, or wrong password.</div>
+      <div class="error-action">→ read availableMethods[]</div>
+    </div>
+    <div class="error-card">
+      <div class="error-code">400 Bad Request</div>
+      <div class="error-desc">Missing required fields or validation failure (e.g. password too short).</div>
+      <div class="error-action">→ check request body</div>
+    </div>
+    <div class="error-card">
+      <div class="error-code">401 Unauthorized</div>
+      <div class="error-desc">Invalid/expired access token on protected routes.</div>
+      <div class="error-action">→ call /refresh</div>
+    </div>
+    <div class="error-card">
+      <div class="error-code">Invalid or expired OTP</div>
+      <div class="error-desc">OTP doesn't match, already used, or 10 min window passed.</div>
+      <div class="error-action">→ call /send-otp again</div>
+    </div>
+    <div class="error-card">
+      <div class="error-code">Invalid or expired reset token</div>
+      <div class="error-desc">Token mismatch, already used, or 15 min window passed.</div>
+      <div class="error-action">→ call /forgot-password again</div>
+    </div>
+    <div class="error-card">
+      <div class="error-code">Refresh token reuse detected</div>
+      <div class="error-desc">Refresh token used after rotation — possible token theft.</div>
+      <div class="error-action">→ force re-login</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOGIN FLOWS ── -->
+<div class="section">
+  <div class="section-title">Login Flows</div>
+
+  <div style="margin-bottom:10px;">
+    <div class="panel-label" style="margin-bottom:8px;">Password login</div>
+    <div class="flow-steps">
+      <span class="flow-step">POST /check-email</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">show password field</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">POST /login</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">store tokens</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <div class="panel-label" style="margin-bottom:8px;">OTP login</div>
+    <div class="flow-steps">
+      <span class="flow-step">POST /send-otp</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">check email</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">POST /verify-otp</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">store tokens</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <div class="panel-label" style="margin-bottom:8px;">Google OAuth</div>
+    <div class="flow-steps">
+      <span class="flow-step">GET /google</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Google consent</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">GET /google/callback</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">redirect with tokens</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <div class="panel-label" style="margin-bottom:8px;">Forgot / reset password</div>
+    <div class="flow-steps">
+      <span class="flow-step">POST /forgot-password</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">check email inbox</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">POST /reset-password</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">logged in + 'password' unlocked</span>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel-label" style="margin-bottom:8px;">Token refresh</div>
+    <div class="flow-steps">
+      <span class="flow-step">401 on any request</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">POST /refresh</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">new token pair</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">retry original request</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── ENV VARS ── -->
+<div class="section">
+  <div class="section-title">Environment Variables</div>
+  <pre style="max-width:960px;"><span class="cmt"># Server</span>
+<span class="key">PORT</span>=<span class="num">5000</span>
+<span class="key">NODE_ENV</span>=<span class="str">development</span>
+
+<span class="cmt"># Database</span>
+<span class="key">MONGO_URI</span>=<span class="str">mongodb://localhost:27017/auth-app</span>
+
+<span class="cmt"># JWT — use different secrets for access and refresh</span>
+<span class="key">JWT_SECRET</span>=<span class="str">your_access_token_secret</span>
+<span class="key">JWT_REFRESH_SECRET</span>=<span class="str">your_refresh_token_secret</span>
+
+<span class="cmt"># Email (Gmail App Password — not your real password)</span>
+<span class="key">EMAIL_USER</span>=<span class="str">yourgmail@gmail.com</span>
+<span class="key">EMAIL_PASS</span>=<span class="str">your_16_char_app_password</span>
+
+<span class="cmt"># Google OAuth</span>
+<span class="key">GOOGLE_CLIENT_ID</span>=<span class="str">your_google_client_id</span>
+<span class="key">GOOGLE_CLIENT_SECRET</span>=<span class="str">your_google_client_secret</span>
+<span class="key">GOOGLE_CALLBACK_URL</span>=<span class="str">http://localhost:5000/api/auth/google/callback</span>
+
+<span class="cmt"># Frontend</span>
+<span class="key">CLIENT_URL</span>=<span class="str">http://localhost:3000</span></pre>
+</div>
+
+<footer>
+  <p>// auth-app · Node.js + Express + MongoDB + JWT + Passport</p>
+  <p>// generated · June 2026</p>
+</footer>
+
+<script>
+  function toggle(header) {
+    const card   = header.closest('.route-card');
+    const body   = card.querySelector('.route-body');
+    const chev   = header.querySelector('.chevron');
+    const isOpen = body.classList.contains('open');
+
+    // close all
+    document.querySelectorAll('.route-body').forEach(b => b.classList.remove('open'));
+    document.querySelectorAll('.chevron').forEach(c => c.classList.remove('open'));
+
+    if (!isOpen) {
+      body.classList.add('open');
+      chev.classList.add('open');
+    }
+  }
+</script>
+</body>
+</html>

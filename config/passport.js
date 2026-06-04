@@ -6,7 +6,7 @@ const initializePassport = () => {
   passport.use(
     new GoogleStrategy(
       {
-        clientID:     process.env.GOOGLE_CLIENT_ID,      // read at call time, not import time
+        clientID:     process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL:  process.env.GOOGLE_CALLBACK_URL,
       },
@@ -18,14 +18,21 @@ const initializePassport = () => {
           let user = await User.findOne({ email });
 
           if (user) {
-            if (user.authProvider === 'local') {
-              user.authProvider = 'google';
-              await user.save({ validateBeforeSave: false });
-            }
+            // ── Existing user ────────────────────────────
+            // push 'google' only if not already there
+            // addProvider() is idempotent — safe to call every login
+            user.addProvider('google');
+            await user.save({ validateBeforeSave: false });
             return done(null, user);
           }
 
-          user = await User.create({ name, email, authProvider: 'google' });
+          // ── New user ─────────────────────────────────
+          user = await User.create({
+            name,
+            email,
+            authProviders: ['google'],  // ← array from the start
+          });
+
           return done(null, user);
 
         } catch (err) {
